@@ -1,6 +1,6 @@
 #vminfo
-Date:2015-7-7
-Version:1.0
+Date:2015-7-7.
+Version:1.0.
 ##说明:
 - 在centos6.x平台上测试通过.
 - 列出当前宿主机上所有运行中的虚拟机(KVM)详细信息.
