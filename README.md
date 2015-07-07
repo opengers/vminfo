@@ -1,9 +1,9 @@
-vminfo
-说明:
+#vminfo
+##说明:
 列出当前宿主机上的虚拟机(KVM)详细信息
 在centos6.x平台上测试通过
 
-解释：
+##解释：
 VHOSTS: 所有使用libvirt管理的虚拟机名称 \n
 PID: 该虚拟机进程的PID
 %CPU: 该虚拟机进程所占用宿主机CPU百分比
