@@ -1,5 +1,6 @@
 #vminfo
 Date:2015-7-7.
+
 Version:1.0.
 ##说明:
 - 在centos6.x平台上测试通过.
