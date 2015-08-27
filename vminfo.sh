@@ -48,4 +48,4 @@ format_printf
 }
 
 main
-rm -fr /root/vmhost.txt
+rm -f /root/vmhost.txt
