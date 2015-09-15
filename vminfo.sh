@@ -4,8 +4,6 @@
 #Version:1.5
 #Author:lijian
 #Update:2015-9-15
-#ChangeLog:"-d"
-
 
 #spice
 function get_spiceinfo () {
