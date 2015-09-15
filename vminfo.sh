@@ -1,15 +1,17 @@
 #!/bin/bash
 #Time:2015-3-20
-#Author:lijian
+#Author:www.isjian.com
 #Version:1.5
+#Update:2015-9-15
 
 ##说明:
 #1.在centos6.x平台上测试通过.
 #2.列出当前宿主机上所有运行中的虚拟机(KVM)详细信息.
-#ChangeLog
-##Version 1.5 ChangeLog
-#1.可显示虚机每块磁盘大小.
-#2.默认只列出虚机的根磁盘，加上"-d"参数可列出所有磁盘.
+#更新日志
+##2015-9-15
+#1.更新版本为1.5
+#2.可显示虚机每块磁盘大小.
+#3.默认只列出虚机的根磁盘，加上"-d"参数可列出所有磁盘.
 
 #spice
 function get_spiceinfo () {
