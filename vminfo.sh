@@ -1,18 +1,24 @@
 #!/bin/bash
 #Time:2015-3-20
-#Note:show the information of all active VMs
-#Version:1.5
 #Author:lijian
-#Update:2015-9-15
+#Version:1.5
+
+##说明:
+#1.在centos6.x平台上测试通过.
+#2.列出当前宿主机上所有运行中的虚拟机(KVM)详细信息.
+#ChangeLog
+##Version 1.5 ChangeLog
+#1.可显示虚机每块磁盘大小.
+#2.默认只列出虚机的根磁盘，加上"-d"参数可列出所有磁盘.
 
 #spice
 function get_spiceinfo () {
-ps aux | grep "qemu-kvm" | grep -v grep | grep " \-spice port" | awk '{ for(i=1;i<=NF;i++){if($i ~ /-name/)Name=$(i+1);else if($i == "-spice")Port=$(i+1)} print Name,$2,$3,$4,"spice:"substr(Port,1,match(Port,/,addr.*/)-1)}' | sed -r "s/(port=|tls-port=)//g" >> /root/vmhost.txt
+ps aux | grep "qemu-kvm" | grep -v grep | grep " \-spice port" | awk '{ for(i=1;i<=NF;i++){if($i ~ /-name/)Name=$(i+1);else if($i == "-spice")Port=$(i+1)} print Name,$2,$3,$4,"spice:"substr(Port,1,match(Port,/,addr.*/)-1)}' | sed -r "s/(port=|tls-port=)//g" >> /tmp/vmhost.txt
 }
 
 #vnc
 function get_vncinfo() {
-ps aux | grep "qemu-kvm" | grep -v grep | grep " \-vnc " | awk '{ for(i=1;i<=NF;i++){if($i == "-name")Name=$(i+1);else if($i == "-vnc")Port=$(i+1)} print Name,$2,$3,$4,"vnc:"substr(Port,match(Port,/:.*/)+1)+5900}' >> /root/vmhost.txt
+ps aux | grep "qemu-kvm" | grep -v grep | grep " \-vnc " | awk '{ for(i=1;i<=NF;i++){if($i == "-name")Name=$(i+1);else if($i == "-vnc")Port=$(i+1)} print Name,$2,$3,$4,"vnc:"substr(Port,match(Port,/:.*/)+1)+5900}' >> /tmp/vmhost.txt
 }
 
 #get vhost cpu,memory
@@ -35,24 +41,23 @@ function get_vmblk() {
 function format_line() {
 get_spiceinfo
 get_vncinfo
-for i in `cat /root/vmhost.txt | awk '{print $1}'`;do
+for i in `cat /tmp/vmhost.txt | awk '{print $1}'`;do
 	vminfo="`get_vminfo ${i}`"
 	blkinfo_temp="`get_vmblk ${i}`"
 	blkinfo=$(echo ${blkinfo_temp} | sed -r 's/\//\\\//g')
-	sed -i -r "/^${i} /s/.*/& ${vminfo} ${blkinfo}/g" /root/vmhost.txt
+	sed -i -r "/^${i} /s/.*/& ${vminfo} ${blkinfo}/g" /tmp/vmhost.txt
 done
 }
 
 function format_printf() {
 if [ "${alter}" == "-d" ];then
-	cat /root/vmhost.txt | awk 'BEGIN{printf "%-15s %-15s\n","VHOSTS","Vdisks";printf"%s\n","--------------------------------------------------------------------------------------------------------------"}{printf "%-15s %-15s\n",$1,$8}'
+	cat /tmp/vmhost.txt | awk 'BEGIN{printf "%-15s %-15s\n","VHOSTS","Vdisks";printf"%s\n","--------------------------------------------------------------------------------------------------------------"}{printf "%-15s %-15s\n",$1,$8}'
 else
-	cat /root/vmhost.txt | awk 'BEGIN{printf "%-15s %-8s %-7s %-7s %-15s %-7s %-7s %-20s\n","VHOSTS","PID","%CPU","%MEM","PORT","Vcpus","Vmems","Vdisks";printf"%s\n","--------------------------------------------------------------------------------------------------------------------------------------"}{printf "%-15s %-8s %-7s %-7s %-15s %-7s %-7s %-20s\n",$1,$2,$3,$4,$5,$6,$7,$8}'
+	cat /tmp/vmhost.txt | awk 'BEGIN{printf "%-15s %-8s %-7s %-7s %-15s %-7s %-7s %-20s\n","VHOSTS","PID","%CPU","%MEM","PORT","Vcpus","Vmems","Vdisks";printf"%s\n","--------------------------------------------------------------------------------------------------------------------------------------"}{printf "%-15s %-8s %-7s %-7s %-15s %-7s %-7s %-20s\n",$1,$2,$3,$4,$5,$6,$7,$8}'
 fi
 }
 
 function main() {
-rm -fr /root/vmhost.txt
 format_line
 format_printf
 }
@@ -63,4 +68,6 @@ else
 	alter=n
 fi
 
+rm -f /tmp/vmhost.txt
 main
+rm -f /tmp/vmhost.txt
