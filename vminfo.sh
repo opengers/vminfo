@@ -60,16 +60,20 @@ fi
 }
 
 function main() {
+rm -f /tmp/vmhost.txt
 format_line
 format_printf
+rm -f /tmp/vmhost.txt
 }
 
 if [ ! -z $1 ];then
 	alter=$1
+	if [ "${alter}" == "-v" ];then
+		echo "Version:1.5 at 2015-9-15"
+		exit 2
+	fi
 else
 	alter=n
 fi
 
-rm -f /tmp/vmhost.txt
 main
-rm -f /tmp/vmhost.txt
