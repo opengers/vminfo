@@ -31,12 +31,15 @@ ps aux | grep "qemu-kvm" | grep -v grep | grep " \-vnc " | awk '{ for(i=1;i<=NF;
 #get arp table
 function get_arptable() {
 if [ "${alter}" == "-i" ];then
-	vm_net="`ip a | grep "inet " | awk '! /virbr0|host lo/ {print $2}' | sed -r "s/[0-9]+\//0\//g" | xargs`"
-	if ! which nmap &>/dev/null;then
-		echo "Error! --You must install the nmap,please install via:yum -y install nmap"
+	vm_net="`route -n | grep "^0.0.0.0" |awk '{print $2}' | cut -d. -f 1-3`"
+	if [ -z "${vm_net}" ];then
+		echo "Error! --The gateway not set!"
 		exit 2
 	else
-		for vm_i in ${vm_net};do nmap -sP ${vm_i} &>/dev/null;done
+		for ij in `seq 1 254`;do
+			( ping -c 1 ${vm_net}.${ij} &>/dev/null) &
+		done
+		wait
 	fi
 fi
 }
