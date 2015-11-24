@@ -1,13 +1,18 @@
 #!/bin/bash
 #Time:2015-3-20
 #Author:www.isjian.com
-#Version:1.5
-#Update:2015-9-15
+#Version:1.6
+#Update:2015-11-24
 
-##说明:
+###说明:
 #1.在centos6.x平台上测试通过.
 #2.列出当前宿主机上所有运行中的虚拟机(KVM)详细信息.
-#更新日志
+
+###更新日志
+## 2015-11-24
+#1.更新版本为1.6.
+#2.使用"-i"参数可显示虚拟机ip地址.
+#3.无法获取ip地址的虚拟机会用"-"代替.
 ##2015-9-15
 #1.更新版本为1.5
 #2.可显示虚机每块磁盘大小.
@@ -21,6 +26,19 @@ ps aux | grep "qemu-kvm" | grep -v grep | grep " \-spice port" | awk '{ for(i=1;
 #vnc
 function get_vncinfo() {
 ps aux | grep "qemu-kvm" | grep -v grep | grep " \-vnc " | awk '{ for(i=1;i<=NF;i++){if($i == "-name")Name=$(i+1);else if($i == "-vnc")Port=$(i+1)} print Name,$2,$3,$4,"vnc:"substr(Port,match(Port,/:.*/)+1)+5900}' >> /tmp/vmhost.txt
+}
+
+#get arp table
+function get_arptable() {
+if [ "${alter}" == "-i" ];then
+	vm_net="`ip a | grep "inet " | awk '! /virbr0|host lo/ {print $2}' | sed -r "s/[0-9]+\//0\//g" | xargs`"
+	if ! which nmap &>/dev/null;then
+		echo "Error! --You must install the nmap,please install via:yum -y install nmap"
+		exit 2
+	else
+		for vm_i in ${vm_net};do nmap -sP ${vm_i} &>/dev/null;done
+	fi
+fi
 }
 
 #get vhost cpu,memory
@@ -39,41 +57,55 @@ function get_vmblk() {
 	fi
 }
 
+#get vmip
+function get_vmip() {
+	vm_mac="`virsh domiflist "$1" | awk 'NR>2{if($0 != "") print $5}'`"
+	if [ -z "${vm_mac}" ];then
+		echo "Error! --The VM $1 haven't a interface"
+		exit 2
+	else
+			vm_ip_tmp="`arp -n | grep "${vm_mac}" | awk '{print $1}' | head -n 1`"
+			vm_ip=${vm_ip_tmp:-"-"}
+	fi
+
+}
+
 #format 
 function format_line() {
 get_spiceinfo
 get_vncinfo
+get_arptable
 for i in `cat /tmp/vmhost.txt | awk '{print $1}'`;do
-	vminfo="`get_vminfo ${i}`"
-	blkinfo_temp="`get_vmblk ${i}`"
-	blkinfo=$(echo ${blkinfo_temp} | sed -r 's/\//\\\//g')
-	sed -i -r "/^${i} /s/.*/& ${vminfo} ${blkinfo}/g" /tmp/vmhost.txt
+	if [ "${alter}" != "-i" ];then
+		vminfo="`get_vminfo ${i}`"
+		blkinfo_temp="`get_vmblk ${i}`"
+		blkinfo=$(echo ${blkinfo_temp} | sed -r 's/\//\\\//g')
+		sed -i -r "/^${i} /s/.*/& ${vminfo} ${blkinfo}/g" /tmp/vmhost.txt
+	else
+		get_vmip "${i}"
+		sed -i -r "/^${i} /s/.*/& ${vm_ip}/g" /tmp/vmhost.txt
+	fi
 done
 }
 
 function format_printf() {
 if [ "${alter}" == "-d" ];then
-	cat /tmp/vmhost.txt | awk 'BEGIN{printf "%-15s %-15s\n","VHOSTS","Vdisks";printf"%s\n","--------------------------------------------------------------------------------------------------------------"}{printf "%-15s %-15s\n",$1,$8}'
+	cat /tmp/vmhost.txt | awk 'BEGIN{printf "%-20s %-15s\n","VHOSTS","Vdisks";printf"%s\n","--------------------------------------------------------------------------------------------------------------"}{printf "%-15s %-15s\n",$1,$8}'
+
+elif [ "${alter}" == "-i" ];then
+	cat /tmp/vmhost.txt | awk 'BEGIN{printf "%-25s %-15s\n","VHOSTS","Vip";printf"%s\n","--------------------------------------------------------------------------------------------------------------"}{printf "%-25s %-15s\n",$1,$6}'
+
 else
-	cat /tmp/vmhost.txt | awk 'BEGIN{printf "%-15s %-8s %-7s %-7s %-15s %-7s %-7s %-20s\n","VHOSTS","PID","%CPU","%MEM","PORT","Vcpus","Vmems","Vdisks";printf"%s\n","--------------------------------------------------------------------------------------------------------------------------------------"}{printf "%-15s %-8s %-7s %-7s %-15s %-7s %-7s %-20s\n",$1,$2,$3,$4,$5,$6,$7,$8}'
+	cat /tmp/vmhost.txt | awk 'BEGIN{printf "%-18s %-8s %-7s %-7s %-15s %-7s %-7s %-20s\n","VHOSTS","PID","%CPU","%MEM","PORT","Vcpus","Vmems","Vdisks";printf"%s\n","--------------------------------------------------------------------------------------------------------------------------------------"}{printf "%-18s %-8s %-7s %-7s %-15s %-7s %-7s %-20s\n",$1,$2,$3,$4,$5,$6,$7,$8}'
 fi
 }
 
 function main() {
+alter="$1"
 rm -f /tmp/vmhost.txt
 format_line
 format_printf
 rm -f /tmp/vmhost.txt
 }
 
-if [ ! -z $1 ];then
-	alter=$1
-	if [ "${alter}" == "-v" ];then
-		echo "Version:1.5 at 2015-9-15"
-		exit 2
-	fi
-else
-	alter=n
-fi
-
-main
+main "$1"
