@@ -1,14 +1,17 @@
 #!/bin/bash
 #Time:2015-3-20
 #Author:www.isjian.com
-#Version:2.0
-#Update:2016-01-21
+#Version:2.1
+#Update:2016-01-25
 
 ###说明:
 #1.在centos6.x平台上测试通过.
 #2.列出当前宿主机上所有运行中的虚拟机(KVM)详细信息.
 
 ###更新日志
+## 2016-01-25
+#1.更新版本为2.1
+#2.增加"-s"参数，可以计算出所有虚机占用的总虚拟cpu，虚拟内存，虚机磁盘，以及当前所使用的物理磁盘空间
 ## 2016-01-21
 #1.更新版本为2.0
 #2.使用"-i"参数可获取虚拟机ip地址,此命令运行后会提示用户是否进行arp广播,若选择不进行arp广播，可能无法获取某些虚机ip地址
@@ -173,7 +176,7 @@ case ${alter} in
 		c+=$2;
 		m+=$3 }
 		END { printf "%-20s %-20s %-20s %-20s\n","Vcpus","Vmems","DiskUsage","VdiskUsage";for(i=1;i<=34;i++)printf "---";print ""}
-		END { printf "%-20s %-20s %-20s %-20s\n",c,m,a"G",b"G" }
+		END { printf "%-20s %-20s %-20s %-20s\n",c,m,b"G",a"G" }
 	'
 ;;
 
