@@ -31,7 +31,14 @@
 
 ##用法:
 - 拷贝到/usr/local/bin/目录,并添加可执行权限，然后终端直接使用命令vminfo即可
+1. 如下，直接运行显示结果
 ![image](https://raw.githubusercontent.com/opengers/pic/master/vminfo/1.jpg)
+2. 使用"-d"参数显示虚拟机使用的磁盘，及其大小,比如第一行"[4.3G][40G]" 表示vda磁盘实际占用物理机4.3G空间，分配的虚拟磁盘大小为40G
+![image](https://raw.githubusercontent.com/opengers/pic/master/vminfo/2.jpg)
+3. 使用"-i"参数可以显示虚拟机ip，此IP是基于arp广播获取.
+![image](https://raw.githubusercontent.com/opengers/pic/master/vminfo/3.jpg)
+4. 使用"-s"参数可以显示此物理机上所有虚拟机使用的资源统计，DiskUsage表示虚拟磁盘总量为1100G,但实际只占用物理磁盘487G大小
+![image](https://raw.githubusercontent.com/opengers/pic/master/vminfo/4.jpg)
 
 ##列解释：
 - VHOSTS: 所有使用libvirt管理的运行中的虚拟机,关机状态下的虚拟机不会被列出.

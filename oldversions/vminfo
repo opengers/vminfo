@@ -28,18 +28,26 @@
 #2.可显示虚机每块磁盘大小.
 #3.默认只列出虚机的根磁盘，加上"-d"参数可列出所有磁盘.
 
+#must login root
+function Check_root() {
+	if [ `whoami` != "root" ];then
+		echo "Please login as root!"
+		exit 2
+	fi
+}
+
 #get vms name and print to /tmp/vmhost.txt
-#"break" can shorten the awk running time,even though very short
 function Get_Vmnames() {
-	ps aux | grep "qemu-kvm " | grep -v 'grep' | \
+	ps aux | grep "qemu-kvm" | grep -v 'grep' | \
 	awk '{
-		for(i=1;i<=NF;i++) {
-			if($i == "-name"){ print $(i+1);break }
-		}
+		for(i=1;i<=NF;i++){
+			if($i == "-name") Name=$(i+1) 
+		} 
+		print Name
 	}' >> /tmp/vmhost.txt
 }
 
-#Use of a domain name as the parameter and output it's %cpu,%mem,port on one line
+#get the vm %cpu,%mem,port
 function Get_Consoleinfo () {
 	ps aux | grep "qemu-kvm" | grep -v grep | grep " \-name $1 " | egrep "( \-spice port| \-vnc )" | \
 	awk '{
@@ -159,17 +167,11 @@ Length=$((Length_tmp + 5))
 
 case ${alter} in
 -d)
-	cat /tmp/vmhost.txt | \
-	awk -v L=${Length} '
-	BEGIN{printf "%-*s %-15s\n",L,"VHOSTS","Vdisks";for(i=1;i<=46;i++)printf "---";print ""}
-	{printf "%-*s %-15s\n",L,$1,$2}'
+	cat /tmp/vmhost.txt | awk -v L=${Length} 'BEGIN{printf "%-*s %-15s\n",L,"VHOSTS","Vdisks";for(i=1;i<=46;i++)printf "---";print ""}{printf "%-*s %-15s\n",L,$1,$2}'
 ;;
 
 -i)
-	cat /tmp/vmhost.txt | \
-	awk -v L=${Length} '
-	BEGIN{printf "%-*s %-15s\n",L,"VHOSTS","Vip";for(i=1;i<=14;i++)printf "---";print ""}
-	{printf "%-*s %-15s\n",L,$1,$2}'
+	cat /tmp/vmhost.txt | awk -v L=${Length} 'BEGIN{printf "%-*s %-15s\n",L,"VHOSTS","Vip";for(i=1;i<=14;i++)printf "---";print ""}{printf "%-*s %-15s\n",L,$1,$2}'
 ;;
 
 -s)
@@ -192,14 +194,12 @@ case ${alter} in
 ;;
 
 *)
-	cat /tmp/vmhost.txt | \
-	awk -v L=${Length} '
-	BEGIN{printf "%-*s %-7s %-6s %-6s %-12s %-6s %-6s %-20s\n",L,"VHOSTS","PID","%CPU","%MEM","PORT","Vcpus","Vmems","Vdisks";for(i=1;i<=46;i++)printf "---";print ""}
-	{printf "%-*s %-7s %-6s %-6s %-12s %-6s %-6s %-20s\n",L,$1,$2,$3,$4,$5,$6,$7,$8}'
+	cat /tmp/vmhost.txt | awk -v L=${Length} 'BEGIN{printf "%-*s %-7s %-6s %-6s %-12s %-6s %-6s %-20s\n",L,"VHOSTS","PID","%CPU","%MEM","PORT","Vcpus","Vmems","Vdisks";for(i=1;i<=46;i++)printf "---";print ""}{printf "%-*s %-7s %-6s %-6s %-12s %-6s %-6s %-20s\n",L,$1,$2,$3,$4,$5,$6,$7,$8}'
 ;;
 esac
 /bin/rm -f /tmp/vmhost.txt
 }
 
 alter=$1
+Check_root
 format_printf
