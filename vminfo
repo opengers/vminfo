@@ -28,6 +28,14 @@
 #2.可显示虚机每块磁盘大小.
 #3.默认只列出虚机的根磁盘，加上"-d"参数可列出所有磁盘.
 
+#must login root
+function Check_root() {
+	if [ `whoami` != "root" ];then
+		echo "Please login as root!"
+		exit 2
+	fi
+}
+
 #get vms name and print to /tmp/vmhost.txt
 function Get_Vmnames() {
 	ps aux | grep "qemu-kvm" | grep -v 'grep' | \
@@ -192,4 +200,5 @@ esac
 }
 
 alter=$1
+Check_root
 format_printf

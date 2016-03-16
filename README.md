@@ -7,6 +7,7 @@
 ### 2016-01-25
 1. 更新版本为2.1
 2. 增加"-s"参数，可以计算出此宿主机上所有虚机占用的总vcpu，vmemory，虚机磁盘大小，以及当前所使用的宿主机物理磁盘空间
+3. 
 
 ### 2016-01-21
 1. 更新版本为2.0
@@ -30,6 +31,7 @@
 
 ##用法:
 - 拷贝到/usr/local/bin/目录,并添加可执行权限，然后终端直接使用命令vminfo即可
+![image](https://raw.githubusercontent.com/opengers/pic/master/vminfo/1.jpg)
 
 ##列解释：
 - VHOSTS: 所有使用libvirt管理的运行中的虚拟机,关机状态下的虚拟机不会被列出.
