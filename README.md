@@ -1,25 +1,26 @@
 ##说明:
 - 当前版本:2.1,更新日期:2016-03-15
 - 在centos6.x平台上测试通过.
-- 列出当前宿主机上所有运行中的虚拟机(KVM)详细信息，注意此脚本只能列出运行状态的虚拟机
-- 此脚本依赖qemu-kvm，qemu-img命令
+- 列出当前宿主机上使用libvirt管理的虚拟机(KVM)详细信息，注意此脚本只能列出running状态的虚拟机
+- 此脚本依赖qemu-kvm，qemu-img等命令
+- 此脚本可以识别虚拟机所使用连接协议,vnc或者spice,并显示对应端口
 
 ##用法:
 - 拷贝到/usr/local/bin/目录,并添加可执行权限，然后终端直接使用命令vminfo即可
-1. 如下，直接运行显示结果
+1. 如下，直接运行显示结果,默认只显示虚拟机根磁盘信息,输出行间距会自适应
 ![image](https://raw.githubusercontent.com/opengers/pic/master/vminfo/1.jpg)
 
-2. 使用"-d"参数单独列出虚拟机使用的所有磁盘,比如第一行末尾"[4.3G][40G]"表示vda磁盘实际占用物理机4.3G空间，其分配的虚拟磁盘大小为40G
+2. 使用"-d"参数单独列出虚拟机使用的所有磁盘大小,比如第一行末尾 "[4.3G][40G]" 表示vda磁盘实际占用物理机4.3G空间，其分配的虚拟磁盘大小为40G
 ![image](https://raw.githubusercontent.com/opengers/pic/master/vminfo/2.jpg)
 
-3. 使用"-i"参数可以显示虚拟机ip，此IP是基于arp广播获取.
+3. 使用"-i"参数可以显示虚拟机ip，此IP是基于arp广播获取，若不想使用arp，在提示处输入"n"即可
 ![image](https://raw.githubusercontent.com/opengers/pic/master/vminfo/3.jpg)
 
-4. 使用"-s"参数可以显示此物理机上所有虚拟机的资源统计，DiskUsage表示虚拟磁盘总量为1100G,但实际只占用物理磁盘487G大小
+4. 使用"-s"参数可对所有虚拟机进行资源统计，DiskUsage表示所有虚拟机分配空间总量为1100G,但实际只占用物理机磁盘487G大小
 ![image](https://raw.githubusercontent.com/opengers/pic/master/vminfo/4.jpg)
 
 ##更新日志
-### 2016-01-25
+### 2016-03-15
 1. 更新版本为2.1
 2. 增加"-s"参数，可以计算出此宿主机上所有虚机占用的总vcpu，vmemory，虚机磁盘大小，以及当前所使用的宿主机物理磁盘空间
 
@@ -52,3 +53,6 @@
 - Vcpus: 该台虚拟机vcpu个数.
 - Vmems: 该台虚拟机虚拟内存大小.
 - Vdisk: 该虚拟机所使用的虚拟磁盘(默认只列出该虚拟机系统盘,使用"-d"参数列出所有).
+- DiskUsage: 此物理机上所有虚拟机分配的虚拟磁盘总大小
+- VdiskUsage: 此物理机上所有虚拟机分配的虚拟磁盘实际占用物理机磁盘容量
+- Vip: 该虚拟机ip，若不使用arp广播，无法获取ip的虚拟机将显示为"noip"

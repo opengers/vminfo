@@ -54,7 +54,7 @@ function Get_Consoleinfo () {
 	}' | sed -r "s/(port=|tls-port=)//g"
 }
 
-#get arp table
+#get all ip address from host and execute arp broadcast
 function Get_Arptable() {
 	read -p "Whether to use arp broadcast(y|n):" whether
 	if [ "${whether}" == "y" ];then
@@ -79,6 +79,7 @@ function Get_Vcpuvmems() {
 }
 
 #get vhost block
+#awk: change the unit "M" to "G"
 function Get_Vmblk() {
 	blklist=$(virsh domblklist "$1" | awk 'NR>=3{if($2 != "-" && NF>=1) print $1":"$2}' | xargs)
 	declare -i num && num=1
@@ -100,6 +101,7 @@ function Get_Vmblk() {
 }
 
 #get vmip
+#can have multiple ip
 function Get_Vmip() {
 	vm_mac="`virsh domiflist "$1" | awk 'NR>2{if($0 != "") print $5}' | xargs`"
 	vm_mac=${vm_mac:-no_mac}
@@ -154,6 +156,7 @@ function format_printf() {
 /bin/rm -f /tmp/vmhost.txt
 format_line
 
+#Get the first output field width according to the size of the domain name
 Length_tmp=$(cat /tmp/vmhost.txt | awk 'BEGIN{A=0} {if(length($1)>=A) A=length($1)} END{print A}')
 Length=$((Length_tmp + 5))
 
