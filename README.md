@@ -1,13 +1,27 @@
 ##说明:
-- 当前版本:2.0,更新日期:2016-01-21
+- 当前版本:2.0,更新日期:2016-03-15
 - 在centos6.x平台上测试通过.
-- 说明：列出当前宿主机上所有运行中的虚拟机(KVM)详细信息，注意此脚本只能列出运行状态的虚拟机
+- 列出当前宿主机上所有运行中的虚拟机(KVM)详细信息，注意此脚本只能列出运行状态的虚拟机
+- 此脚本依赖qemu-kvm，qemu-img命令
+
+##用法:
+- 拷贝到/usr/local/bin/目录,并添加可执行权限，然后终端直接使用命令vminfo即可
+1. 如下，直接运行显示结果
+![image](https://raw.githubusercontent.com/opengers/pic/master/vminfo/1.jpg)
+
+2. 使用"-d"参数单独列出虚拟机使用的所有磁盘,比如第一行末尾"[4.3G][40G]"表示vda磁盘实际占用物理机4.3G空间，其分配的虚拟磁盘大小为40G
+![image](https://raw.githubusercontent.com/opengers/pic/master/vminfo/2.jpg)
+
+3. 使用"-i"参数可以显示虚拟机ip，此IP是基于arp广播获取.
+![image](https://raw.githubusercontent.com/opengers/pic/master/vminfo/3.jpg)
+
+4. 使用"-s"参数可以显示此物理机上所有虚拟机的资源统计，DiskUsage表示虚拟磁盘总量为1100G,但实际只占用物理磁盘487G大小
+![image](https://raw.githubusercontent.com/opengers/pic/master/vminfo/4.jpg)
 
 ##更新日志
 ### 2016-01-25
 1. 更新版本为2.1
 2. 增加"-s"参数，可以计算出此宿主机上所有虚机占用的总vcpu，vmemory，虚机磁盘大小，以及当前所使用的宿主机物理磁盘空间
-3. 
 
 ### 2016-01-21
 1. 更新版本为2.0
@@ -29,20 +43,6 @@
 3. 默认只列出虚机的根磁盘，加上"-d"参数可列出所有磁盘.
 4. 使用"-v"参数可显示当前命令版本
 
-##用法:
-- 拷贝到/usr/local/bin/目录,并添加可执行权限，然后终端直接使用命令vminfo即可
-1. 如下，直接运行显示结果
-![image](https://raw.githubusercontent.com/opengers/pic/master/vminfo/1.jpg)
-
-2. 使用"-d"参数显示虚拟机使用的磁盘，及其大小,比如第一行"[4.3G][40G]" 表示vda磁盘实际占用物理机4.3G空间，分配的虚拟磁盘大小为40G
-![image](https://raw.githubusercontent.com/opengers/pic/master/vminfo/2.jpg)
-
-3. 使用"-i"参数可以显示虚拟机ip，此IP是基于arp广播获取.
-![image](https://raw.githubusercontent.com/opengers/pic/master/vminfo/3.jpg)
-
-4. 使用"-s"参数可以显示此物理机上所有虚拟机使用的资源统计，DiskUsage表示虚拟磁盘总量为1100G,但实际只占用物理磁盘487G大小
-![image](https://raw.githubusercontent.com/opengers/pic/master/vminfo/4.jpg)
-
 ##列解释：
 - VHOSTS: 所有使用libvirt管理的运行中的虚拟机,关机状态下的虚拟机不会被列出.
 - PID: 该虚拟机进程的PID,kvm虚拟机其实就是宿主机上一个标准的进程.
@@ -51,4 +51,4 @@
 - PORT: 该虚拟机console映射到宿主机上的vnc端口,可以通过宿主机的此端口连接到虚拟机console.
 - Vcpus: 该台虚拟机vcpu个数.
 - Vmems: 该台虚拟机虚拟内存大小.
-- Vdisk: 该虚拟机所使用的虚拟磁盘(只列出该虚拟机系统盘).
+- Vdisk: 该虚拟机所使用的虚拟磁盘(默认只列出该虚拟机系统盘,使用"-d"参数列出所有).
